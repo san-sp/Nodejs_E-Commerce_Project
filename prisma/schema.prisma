@@ -18,6 +18,20 @@ enum ProductStatus {
   ARCHIVED
 }
 
+enum OrderStatus {
+  PENDING_PAYMENT
+  PAID
+  CANCELLED
+  EXPIRED
+}
+
+enum ReservationStatus {
+  ACTIVE
+  CONFIRMED
+  RELEASED
+  EXPIRED
+}
+
 model Product {
   id          String           @id @default(uuid()) @db.Uuid
   name        String
@@ -43,7 +57,9 @@ model ProductVariant {
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
   inventoryId  String?    @db.Uuid
-  cartItems    CartItem[]
+
+  cartItems  CartItem[]
+  orderItems OrderItem[]
 
   @@index([productId])
 }
@@ -56,6 +72,8 @@ model Inventory {
   variant          ProductVariant @relation(fields: [variantId], references: [id], onDelete: Restrict)
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
+
+  reservations InventoryReservation[]
 }
 
 model User {
@@ -67,7 +85,8 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  carts Cart[]
+  carts  Cart[]
+  orders Order[]
 
   @@index([role])
 }
@@ -93,4 +112,61 @@ model CartItem {
 
   @@unique([cartId, variantId])
   @@index([variantId])
+}
+
+model Order {
+  id             String      @id @default(uuid()) @db.Uuid
+  userId         String      @db.Uuid
+  status         OrderStatus @default(PENDING_PAYMENT)
+  totalInPaise   Int
+  currency       String      @default("INR")
+  idempotencyKey String?     @unique
+  expiresAt      DateTime?
+  paidAt         DateTime?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  user         User                   @relation(fields: [userId], references: [id], onDelete: Restrict)
+  items        OrderItem[]
+  reservations InventoryReservation[]
+
+  @@index([userId, createdAt])
+  @@index([status, expiresAt])
+}
+
+model OrderItem {
+  id               String   @id @default(uuid()) @db.Uuid
+  orderId          String   @db.Uuid
+  variantId        String   @db.Uuid
+  productName      String
+  variantName      String
+  sku              String
+  unitPriceInPaise Int
+  quantity         Int
+  lineTotalInPaise Int
+  createdAt        DateTime @default(now())
+
+  order   Order          @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  variant ProductVariant @relation(fields: [variantId], references: [id], onDelete: Restrict)
+
+  @@index([orderId])
+  @@index([variantId])
+}
+
+model InventoryReservation {
+  id          String            @id @default(uuid()) @db.Uuid
+  orderId     String            @db.Uuid
+  inventoryId String            @db.Uuid
+  quantity    Int
+  status      ReservationStatus @default(ACTIVE)
+  expiresAt   DateTime
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  order     Order     @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  inventory Inventory @relation(fields: [inventoryId], references: [id], onDelete: Restrict)
+
+  @@unique([orderId, inventoryId])
+  @@index([status, expiresAt])
+  @@index([inventoryId, status])
 }

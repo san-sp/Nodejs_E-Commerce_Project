@@ -9,6 +9,7 @@ import { productsRouter } from './routes/products.routes.js';
 import { errorHandler } from './middleware/error.middleware.js';
 import authRouter from './routes/auth.routes.js';
 import cartRouter from './routes/cart.routes.js';
+import checkoutRouter from './routes/checkout.routes.js';
 
 export const app = express();
 
@@ -21,5 +22,6 @@ app.use('/health', healthRouter);
 app.use('/products', productsRouter);
 app.use('/auth', authRouter);
 app.use('/cart', cartRouter);
+app.use('/checkout', checkoutRouter);
 
 app.use(errorHandler);
