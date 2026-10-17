@@ -7,6 +7,7 @@ import pinoHttp from 'pino-http';
 import { healthRouter } from './routes/health.routes.js';
 import { productsRouter } from './routes/products.routes.js';
 import { errorHandler } from './middleware/error.middleware.js';
+import authRouter from './routes/auth.routes.js';
 
 export const app = express();
 
@@ -17,5 +18,6 @@ app.use(pinoHttp());
 
 app.use('/health', healthRouter);
 app.use('/products', productsRouter);
+app.use('/auth', authRouter);
 
 app.use(errorHandler);
