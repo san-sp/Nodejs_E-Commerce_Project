@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.env
+coverage/
+*.log
+/src/generated/prisma
+# Local AI tooling and generated Prisma skills
+.agents/
+.claude/
+.windsurf/
+skills-lock.json
