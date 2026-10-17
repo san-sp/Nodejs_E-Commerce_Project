@@ -10,6 +10,7 @@ import { errorHandler } from './middleware/error.middleware.js';
 import authRouter from './routes/auth.routes.js';
 import cartRouter from './routes/cart.routes.js';
 import checkoutRouter from './routes/checkout.routes.js';
+import ordersRouter from './routes/orders.routes.js';
 
 export const app = express();
 
@@ -23,5 +24,6 @@ app.use('/products', productsRouter);
 app.use('/auth', authRouter);
 app.use('/cart', cartRouter);
 app.use('/checkout', checkoutRouter);
+app.use('/orders', ordersRouter);
 
 app.use(errorHandler);
